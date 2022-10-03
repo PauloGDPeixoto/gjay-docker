@@ -1,0 +1,18 @@
+FROM ubuntu:16.04
+
+ARG UID
+ARG DEBIAN_FRONTEND=noninteractive
+ARG GJAY_VERSION=0.3.2
+
+RUN groupadd -g ${UID} gjay && useradd -m gjay -l -u ${UID} --gid ${UID} && \
+    mkdir -p /home/gjay/.local/share && chown gjay. /home/gjay/.local -R
+#RUN sed -i 's/archive.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list && \
+RUN apt-get update && apt-get install -y autopoint autoconf automake audacious libaudclient-dev \
+    curl libflac-dev libmpdclient-dev libgtk2.0 libgtk2.0-dev libgsl0-dev \
+    libvorbis-dev vorbis-tools mpg321 dbus-x11 git
+RUN git clone https://github.com/csmall/gjay.git && cd gjay && \
+   ln -sf /usr/share/automake-1.16/INSTALL INSTALL && ./autogen.sh && \
+   ./configure --prefix=/opt/gjay && make && make install && ln -sf /opt/gjay/bin/gjay /usr/local/bin/
+
+CMD ["gjay", "-v", "5"]
+
